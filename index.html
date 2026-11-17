@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open House Quiz</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one screen at a time. Board of 20 numbers; picking one opens that single question; answering ends the turn. */
+  :root {
+    --bg: #F1F7FE;
+    --surface: #FFFFFF;
+    --ink: #0B2F5B;
+    --muted: #61758D;
+    --line: #D7E6F7;
+    --accent: #1687F8;
+    --accent-ink: #FFFFFF;
+    --ok: #14805E;
+    --ok-bg: #E5F5EF;
+    --bad: #B4233A;
+    --bad-bg: #FCEBED;
+    --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif;
+    --font-body: "Noto Sans Thai", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #081A33;
+      --surface: #102747;
+      --ink: #EAF3FF;
+      --muted: #A7BCD5;
+      --line: #29466B;
+      --accent: #4AA5FF;
+      --accent-ink: #071A31;
+      --ok: #5BD1A5;
+      --ok-bg: #123D38;
+      --bad: #FF8795;
+      --bad-bg: #451F36;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #081A33;
+    --surface: #102747;
+    --ink: #EAF3FF;
+    --muted: #A7BCD5;
+    --line: #29466B;
+    --accent: #4AA5FF;
+    --accent-ink: #071A31;
+    --ok: #5BD1A5;
+    --ok-bg: #123D38;
+    --bad: #FF8795;
+    --bad-bg: #451F36;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background:
+      radial-gradient(ellipse at 85% 12%, rgba(22, 135, 248, .09), transparent 38%),
+      radial-gradient(ellipse at 10% 85%, rgba(22, 135, 248, .05), transparent 36%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    padding-block: 24px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+  .eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin: 0; }
+  h1 { font-family: var(--font-display); font-size: clamp(26px, 5vw, 36px); line-height: 1.25; margin: 2px 0 0; text-wrap: balance; }
+
+  .prompt { font-family: var(--font-display); font-size: clamp(18px, 3.4vw, 22px); font-weight: 500; margin: 0; color: var(--muted); }
+
+  .picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (min-width: 640px) { .picker { grid-template-columns: repeat(5, 1fr); gap: 14px; } }
+  .num {
+    font: 700 30px/1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    aspect-ratio: 1 / 0.8;
+    border-radius: 16px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform .12s ease, border-color .12s ease, background-color .12s ease;
+  }
+  .num:hover { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+  .num:active { transform: scale(.95); }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px 20px; display: flex; flex-direction: column; gap: 18px; }
+  @media (min-width: 640px) { .card { padding: 28px; } }
+  .badge { align-self: flex-start; font: 700 18px/1 var(--font-display); background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 8px 18px; font-variant-numeric: tabular-nums; }
+  .qtext { font-family: var(--font-display); font-size: clamp(20px, 3.6vw, 26px); font-weight: 600; line-height: 1.4; margin: 0; text-wrap: balance; min-width: 0; overflow-wrap: anywhere; }
+
+  .options { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .opt {
+    width: 100%;
+    display: flex; align-items: center; gap: 14px;
+    text-align: left;
+    font: 500 17px/1.4 var(--font-body);
+    color: var(--ink);
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-height: 56px;
+    cursor: pointer;
+    transition: border-color .12s ease, background-color .12s ease;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent); }
+  .opt:disabled { cursor: default; }
+  .letter {
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center;
+    font: 600 16px/1 var(--font-display);
+    background: var(--surface); border: 1.5px solid var(--line); color: var(--muted);
+  }
+  .otext { min-width: 0; overflow-wrap: anywhere; }
+  .opt.ok { background: var(--ok-bg); border-color: var(--ok); }
+  .opt.ok .letter { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+  .opt.bad { background: var(--bad-bg); border-color: var(--bad); }
+  .opt.bad .letter { background: var(--bad); border-color: var(--bad); color: var(--surface); }
+  .opt.dim { opacity: .55; }
+
+  .feedback { margin: 0; font-weight: 600; font-size: 18px; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+
+  .nav { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    font: 600 16px/1 var(--font-body);
+    padding: 14px 22px; border-radius: 12px; cursor: pointer;
+    border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { filter: brightness(1.06); }
+
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  body { margin: 0; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 class="eyebrow">MSU OPENHOUSE DBIS</h1>
+  </header>
+
+  <main id="main" aria-live="polite"></main>
+</div>
+
+<script>
+  // a = index (0-3) of the correct choice. Edit this list to change the questions.
+  var QUESTIONS = [
+    { q: "เมืองหลวงของประเทศไทยคือข้อใด", c: ["เชียงใหม่", "ขอนแก่น", "กรุงเทพมหานคร", "ภูเก็ต"], a: 2 },
+    { q: "ดาวเคราะห์ดวงใดอยู่ใกล้ดวงอาทิตย์ที่สุด", c: ["ดาวศุกร์", "ดาวพุธ", "โลก", "ดาวอังคาร"], a: 1 },
+    { q: "น้ำมีสูตรเคมีว่าอะไร", c: ["CO2", "O2", "NaCl", "H2O"], a: 3 },
+    { q: "7 × 8 เท่ากับเท่าไร", c: ["54", "56", "63", "49"], a: 1 },
+    { q: "มหาสมุทรที่ใหญ่ที่สุดในโลกคือข้อใด", c: ["แปซิฟิก", "แอตแลนติก", "อินเดีย", "อาร์กติก"], a: 0 },
+    { q: "สัตว์ชนิดใดเป็นสัตว์เลี้ยงลูกด้วยนม", c: ["ฉลาม", "ปลาหมึก", "เต่า", "โลมา"], a: 3 },
+    { q: "ภาษาใดใช้กำหนดโครงสร้างของหน้าเว็บไซต์", c: ["MP3", "HTML", "ZIP", "PDF"], a: 1 },
+    { q: "พืชดูดซับก๊าซใดเพื่อใช้ในการสังเคราะห์แสง", c: ["ออกซิเจน", "ไนโตรเจน", "คาร์บอนไดออกไซด์", "ไฮโดรเจน"], a: 2 },
+    { q: "หน่วยพื้นฐานของความยาวในระบบเมตริกคือข้อใด", c: ["เมตร", "กรัม", "ลิตร", "วินาที"], a: 0 },
+    { q: "ประเทศไทยตั้งอยู่ในทวีปใด", c: ["ยุโรป", "แอฟริกา", "เอเชีย", "ออสเตรเลีย"], a: 2 },
+    { q: "การผสมสีแดงกับสีเหลืองจะได้สีใด", c: ["เขียว", "ม่วง", "น้ำเงิน", "ส้ม"], a: 3 },
+    { q: "1 ชั่วโมงมีกี่นาที", c: ["30", "60", "90", "100"], a: 1 },
+    { q: "อวัยวะใดทำหน้าที่สูบฉีดเลือดไปทั่วร่างกาย", c: ["หัวใจ", "ปอด", "ตับ", "ไต"], a: 0 },
+    { q: "ข้อใดเป็นแหล่งพลังงานหมุนเวียน", c: ["ถ่านหิน", "น้ำมันดิบ", "พลังงานแสงอาทิตย์", "ก๊าซธรรมชาติ"], a: 2 },
+    { q: "หนึ่งปีมีกี่เดือน", c: ["10", "11", "13", "12"], a: 3 },
+    { q: "15 + 27 เท่ากับเท่าไร", c: ["41", "42", "43", "52"], a: 1 },
+    { q: "อุปกรณ์ใดใช้แสดงภาพจากคอมพิวเตอร์", c: ["เมาส์", "ลำโพง", "จอภาพ", "คีย์บอร์ด"], a: 2 },
+    { q: "ธาตุที่มีสัญลักษณ์ Fe คือธาตุใด", c: ["เหล็ก", "ทองแดง", "ทอง", "เงิน"], a: 0 },
+    { q: "ดวงจันทร์โคจรรอบอะไร", c: ["ดวงอาทิตย์", "ดาวอังคาร", "ดาวศุกร์", "โลก"], a: 3 },
+    { q: "สัตว์ประจำชาติของประเทศไทยคือข้อใด", c: ["เสือ", "ช้าง", "ม้า", "นกยูง"], a: 1 }
+  ];
+  var LETTERS = ["ก", "ข", "ค", "ง"];
+
+  var current = null; // index of the number the player picked, null = showing the board
+  var picked = null;  // index of the choice the player tapped, null = not answered yet
+  var mainEl = document.getElementById("main");
+
+  function renderBoard() {
+    mainEl.innerHTML = '<p class="prompt">เลือกเลขคำถามที่น้องๆได้</p>' +
+      '<nav class="picker" id="picker" aria-label="เลือกเลขข้อคำถาม"></nav>';
+    var picker = document.getElementById("picker");
+    QUESTIONS.forEach(function (item, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "num";
+      b.textContent = i + 1;
+      b.setAttribute("aria-label", "เลือกข้อ " + (i + 1));
+      b.addEventListener("click", function () { current = i; picked = null; render(); });
+      picker.appendChild(b);
+    });
+  }
+
+  function renderQuestion() {
+    var item = QUESTIONS[current];
+    var done = picked !== null;
+
+    mainEl.innerHTML = '<section class="card">' +
+      '<span class="badge">ข้อ ' + (current + 1) + '</span>' +
+      '<h2 class="qtext"></h2><ul class="options"></ul>' +
+      '<p class="feedback" id="feedback"></p>' +
+      '<div class="nav" id="nav"></div></section>';
+    mainEl.querySelector(".qtext").textContent = item.q;
+
+    var list = mainEl.querySelector(".options");
+    item.c.forEach(function (text, i) {
+      var li = document.createElement("li");
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt";
+      b.disabled = done;
+      b.innerHTML = '<span class="letter"></span><span class="otext"></span>';
+      b.querySelector(".letter").textContent = LETTERS[i];
+      b.querySelector(".otext").textContent = text;
+      if (done) {
+        if (i === item.a) b.classList.add("ok");
+        else if (i === picked) b.classList.add("bad");
+        else b.classList.add("dim");
+      }
+      b.addEventListener("click", function () { choose(i); });
+      li.appendChild(b);
+      list.appendChild(li);
+    });
+
+    if (done) {
+      var fb = document.getElementById("feedback");
+      if (picked === item.a) {
+        fb.className = "feedback ok";
+        fb.textContent = "🎉ถูกต้องละค้าบ! เก่งมากๆ";
+      } else {
+        fb.className = "feedback bad";
+        fb.textContent = "😊ไม่ถูกนะค้าบ คำตอบที่ถูกคือข้อ " + LETTERS[item.a] + " " + item.c[item.a];
+      }
+    }
+
+    var nav = document.getElementById("nav");
+    var next = document.createElement("button");
+    next.type = "button";
+    next.className = "btn primary";
+    next.textContent = "กลับหน้าแรก";
+    next.addEventListener("click", function () { current = null; picked = null; render(); });
+    nav.appendChild(next);
+  }
+
+  function render() {
+    if (current === null) renderBoard(); else renderQuestion();
+    window.scrollTo({ top: 0 });
+  }
+
+  function choose(i) {
+    if (current === null || picked !== null) return;
+    picked = i;
+    render();
+  }
+
+  render();
+</script>
+</body>
+</html>
