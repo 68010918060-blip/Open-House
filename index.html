@@ -19,6 +19,8 @@
     --accent-ink: #FFFFFF;
     --gold: #FFC72C;
     --gold-ink: #0A2A66;
+    --star-blue: #8DAEEA;
+    --star-soft: #FFE08A;
     --ok: #14805E;
     --ok-bg: #E5F5EF;
     --bad: #B4233A;
@@ -145,6 +147,19 @@
   .feedback.bad { animation: shake .5s ease backwards .1s; }
   .confetti { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 50; }
   .confetti span { position: absolute; top: -40px; animation: fall 2.4s ease-in forwards; }
+
+  /* twinkling stars behind everything (cards stay opaque so text is never covered) */
+  @keyframes twinkle {
+    0%, 100% { opacity: .2; transform: translateY(0) scale(.7) rotate(0deg); }
+    50% { opacity: .8; transform: translateY(-8px) scale(1.1) rotate(18deg); }
+  }
+  .stars { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .st { position: absolute; opacity: .45; animation: twinkle 3s ease-in-out infinite; }
+  .st.star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+  .st.spark { clip-path: polygon(50% 0%, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0% 50%, 38% 38%); }
+  .st.gold { background: var(--gold); }
+  .st.blue { background: var(--star-blue); }
+  .st.soft { background: var(--star-soft); }
 
   :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
@@ -311,6 +326,26 @@
       span.textContent = text.charAt(i);
       h.appendChild(span);
     }
+  })();
+
+  // scatter twinkling stars in the background
+  (function () {
+    var box = document.createElement("div");
+    box.className = "stars";
+    box.setAttribute("aria-hidden", "true");
+    var colors = ["gold", "blue", "soft"];
+    for (var i = 0; i < 28; i++) {
+      var st = document.createElement("span");
+      var size = 10 + Math.random() * 12;
+      st.className = "st " + (i % 3 === 0 ? "spark" : "star") + " " + colors[Math.floor(Math.random() * 3)];
+      st.style.width = st.style.height = size + "px";
+      st.style.left = Math.random() * 96 + "%";
+      st.style.top = Math.random() * 96 + "%";
+      st.style.animationDuration = (2.2 + Math.random() * 2.6) + "s";
+      st.style.animationDelay = (-Math.random() * 5) + "s";
+      box.appendChild(st);
+    }
+    document.body.insertBefore(box, document.body.firstChild);
   })();
 
   render();
