@@ -3,62 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="https://thumb.wikimedia.org/wikipedia/th/thumb/d/d9/Mahasarakham_Business_School_Logo.svg/960px-Mahasarakham_Business_School_Logo.svg.png?utm_source=th.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail">
 <title>Open House Quiz</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
 <style>
   /* Layout: one screen at a time. Board of 20 numbers; picking one opens that single question; answering ends the turn. */
   :root {
-    --bg: #F1F7FE;
+    --bg: #FFFFFF;
+    --tint: #F2F5FB;
     --surface: #FFFFFF;
-    --ink: #0B2F5B;
-    --muted: #61758D;
-    --line: #D7E6F7;
-    --accent: #1687F8;
+    --ink: #0A2A66;
+    --muted: #55678C;
+    --line: #D3DCEF;
+    --accent: #0A2A66;
     --accent-ink: #FFFFFF;
+    --gold: #FFC72C;
+    --gold-ink: #0A2A66;
     --ok: #14805E;
     --ok-bg: #E5F5EF;
     --bad: #B4233A;
     --bad-bg: #FCEBED;
     --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif;
     --font-body: "Noto Sans Thai", system-ui, sans-serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #081A33;
-      --surface: #102747;
-      --ink: #EAF3FF;
-      --muted: #A7BCD5;
-      --line: #29466B;
-      --accent: #4AA5FF;
-      --accent-ink: #071A31;
-      --ok: #5BD1A5;
-      --ok-bg: #123D38;
-      --bad: #FF8795;
-      --bad-bg: #451F36;
-      color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #081A33;
-    --surface: #102747;
-    --ink: #EAF3FF;
-    --muted: #A7BCD5;
-    --line: #29466B;
-    --accent: #4AA5FF;
-    --accent-ink: #071A31;
-    --ok: #5BD1A5;
-    --ok-bg: #123D38;
-    --bad: #FF8795;
-    --bad-bg: #451F36;
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   * { box-sizing: border-box; }
   body {
-    background:
-      radial-gradient(ellipse at 85% 12%, rgba(22, 135, 248, .09), transparent 38%),
-      radial-gradient(ellipse at 10% 85%, rgba(22, 135, 248, .05), transparent 36%),
-      var(--bg);
+    background: var(--bg);
     color: var(--ink);
     font-family: var(--font-body);
     font-size: 16px;
@@ -69,10 +41,16 @@
   }
   .wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-  .eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin: 0; }
-  h1 { font-family: var(--font-display); font-size: clamp(26px, 5vw, 36px); line-height: 1.25; margin: 2px 0 0; text-wrap: balance; }
+  header { display: flex; flex-direction: column; align-items: center; gap: 12px; border-bottom: 4px solid var(--gold); padding-bottom: 16px; }
+  .logo { flex: none; width: 128px; height: 128px; }
+  @media (min-width: 640px) { .logo { width: 150px; height: 150px; } }
+  /* question page: shrink the header to one compact row so the question stays on screen */
+  body.compact header { flex-direction: row; justify-content: flex-start; gap: 12px; padding-bottom: 12px; }
+  body.compact .logo { width: 56px; height: 56px; }
+  .eyebrow { display: inline-block; background: var(--accent); color: var(--gold); letter-spacing: .06em; text-transform: uppercase; font-weight: 700; margin: 0; padding: 8px 20px; border-radius: 12px; }
+  h1 { font-family: var(--font-display); font-size: clamp(18px, 4vw, 24px); line-height: 1.3; margin: 0; text-wrap: balance; }
 
-  .prompt { font-family: var(--font-display); font-size: clamp(18px, 3.4vw, 22px); font-weight: 500; margin: 0; color: var(--muted); }
+  .prompt { font-family: var(--font-display); font-size: clamp(18px, 3.4vw, 22px); font-weight: 500; margin: 0 0 14px; color: var(--muted); }
 
   .picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   @media (min-width: 640px) { .picker { grid-template-columns: repeat(5, 1fr); gap: 14px; } }
@@ -87,10 +65,10 @@
     cursor: pointer;
     transition: transform .12s ease, border-color .12s ease, background-color .12s ease;
   }
-  .num:hover { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+  .num:hover { border-color: var(--gold); background: var(--gold); color: var(--gold-ink); }
   .num:active { transform: scale(.95); }
 
-  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px 20px; display: flex; flex-direction: column; gap: 18px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-top: 5px solid var(--gold); border-radius: 16px; padding: 24px 20px; display: flex; flex-direction: column; gap: 18px; }
   @media (min-width: 640px) { .card { padding: 28px; } }
   .badge { align-self: flex-start; font: 700 18px/1 var(--font-display); background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 8px 18px; font-variant-numeric: tabular-nums; }
   .qtext { font-family: var(--font-display); font-size: clamp(20px, 3.6vw, 26px); font-weight: 600; line-height: 1.4; margin: 0; text-wrap: balance; min-width: 0; overflow-wrap: anywhere; }
@@ -102,7 +80,7 @@
     text-align: left;
     font: 500 17px/1.4 var(--font-body);
     color: var(--ink);
-    background: var(--bg);
+    background: var(--tint);
     border: 1.5px solid var(--line);
     border-radius: 12px;
     padding: 12px 14px;
@@ -110,7 +88,7 @@
     cursor: pointer;
     transition: border-color .12s ease, background-color .12s ease;
   }
-  .opt:hover:not(:disabled) { border-color: var(--accent); }
+  .opt:hover:not(:disabled) { border-color: var(--gold); background: #FFF8DF; }
   .opt:disabled { cursor: default; }
   .letter {
     flex: none; width: 34px; height: 34px; border-radius: 50%;
@@ -135,8 +113,9 @@
     padding: 14px 22px; border-radius: 12px; cursor: pointer;
     border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
   }
-  .btn:hover { border-color: var(--accent); }
+  .btn:hover { border-color: var(--gold); }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { border-color: var(--gold); box-shadow: 0 3px 0 var(--gold); }
   .btn.primary:hover { filter: brightness(1.06); }
 
   :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -148,35 +127,36 @@
 <body>
 <div class="wrap">
   <header>
-    <h1 class="eyebrow">MSU OPENHOUSE DBIS</h1>
+    <img class="logo" src="https://thumb.wikimedia.org/wikipedia/th/thumb/d/d9/Mahasarakham_Business_School_Logo.svg/960px-Mahasarakham_Business_School_Logo.svg.png?utm_source=th.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail" alt="Logo">
+    <h1 class="eyebrow">DBIS OPENHOUSE QUIZ</h1>
   </header>
 
-  <main id="main" aria-live="polite"></main>
+  <main id="main" aria-live="polite"></main>.
 </div>
 
 <script>
   // a = index (0-3) of the correct choice. Edit this list to change the questions.
   var QUESTIONS = [
-    { q: "ข้อใดคือ \"ฮาร์ดแวร์\" ของคอมพิวเตอร์", c: ["โปรแกรม Word", "เมาส์", "ไฟล์รูปภาพ", "เว็บไซต์"], a: 1 },
-    { q: "ข้อใดคือ \"ซอฟต์แวร์\"", c: ["จอภาพ", "คีย์บอร์ด", "โปรแกรม Excel", "เครื่องพิมพ์"], a: 2 },
-    { q: "อุปกรณ์ใดใช้รับข้อมูลเข้าสู่คอมพิวเตอร์", c: ["ลำโพง", "จอภาพ", "โปรเจกเตอร์", "คีย์บอร์ด"], a: 3 },
-    { q: "CPU ซึ่งเปรียบเหมือนสมองของคอมพิวเตอร์ ทำหน้าที่อะไร", c: ["ประมวลผลคำสั่ง", "แสดงภาพบนจอ", "ต่อสาย LAN", "เก็บไฟล์ตลอดไป"], a: 0 },
-    { q: "Wi-Fi ใช้ทำอะไร", c: ["เชื่อมต่ออินเทอร์เน็ตแบบไร้สาย", "ชาร์จแบตเตอรี่", "พิมพ์เอกสาร", "ทำให้เครื่องเย็นลง"], a: 0 },
-    { q: "รหัสผ่านแบบใดปลอดภัยที่สุด", c: ["123456", "ชื่อกับวันเกิดของตัวเอง", "password", "ผสมตัวอักษร ตัวเลข และสัญลักษณ์"], a: 3 },
-    { q: "ข้อมูลใดที่ไม่ควรบอกให้คนอื่นรู้", c: ["ชื่อเกมที่ชอบ", "รหัสผ่านและรหัส OTP", "วิชาที่ชอบเรียน", "สีที่ชอบ"], a: 1 },
-    { q: "ได้รับอีเมลแปลก ๆ ให้กดลิงก์เพื่อรับรางวัล ควรทำอย่างไร", c: ["รีบกดลิงก์ทันที", "ส่งต่อให้เพื่อนทุกคน", "ไม่กดลิงก์ และลบอีเมลทิ้ง", "กรอกรหัสผ่านเพื่อรับรางวัล"], a: 2 },
-    { q: "ไฟล์งานสำคัญควรทำอะไรไว้เป็นประจำ", c: ["ลบทิ้งเมื่อทำเสร็จ", "เก็บไว้เครื่องเดียว", "สำรองข้อมูล (Backup)", "เปลี่ยนชื่อไฟล์ทุกวัน"], a: 2 },
-    { q: "ระบบสารสนเทศคือระบบที่ช่วยทำอะไร", c: ["เก็บ ประมวลผล และแสดงข้อมูล", "ผลิตกระแสไฟฟ้า", "ซ่อมรถยนต์", "ปลูกต้นไม้"], a: 0 },
-    { q: "ข้อใดเป็นตัวอย่างระบบสารสนเทศในมหาวิทยาลัย", c: ["ตู้น้ำหยอดเหรียญ", "กระดานดำ", "ระบบลงทะเบียนเรียนออนไลน์", "พัดลมเพดาน"], a: 2 },
-    { q: "ฐานข้อมูล (Database) คืออะไร", c: ["ที่เก็บข้อมูลอย่างเป็นระบบ", "เครื่องพิมพ์ชนิดหนึ่ง", "เมาส์ไร้สาย", "โปรแกรมแต่งรูป"], a: 0 },
-    { q: "อินเทอร์เน็ต (Internet) คืออะไร", c: ["ชนิดของแบตเตอรี่", "โปรแกรมเล่นเกม", "ชื่อเครื่องพิมพ์", "เครือข่ายคอมพิวเตอร์ที่เชื่อมต่อกันทั่วโลก"], a: 3 },
-    { q: "สัญลักษณ์ใดอยู่ในที่อยู่อีเมลทุกอัน", c: ["#", "@", "$", "%"], a: 1 },
-    { q: "ไฟล์นามสกุล .jpg คือไฟล์ประเภทใด", c: ["เอกสาร", "เพลง", "รูปภาพ", "วิดีโอ"], a: 2 },
-    { q: "ข้อใดคือเว็บเบราว์เซอร์ที่ใช้เปิดเว็บไซต์", c: ["Microsoft Word", "Photoshop", "Excel", "Google Chrome"], a: 3 },
-    { q: "AI ย่อมาจากคำว่าอะไร", c: ["Automatic Internet", "Artificial Intelligence", "Advanced Input", "Apple Intelligence"], a: 1 },
-    { q: "QR Code ใช้ทำอะไร", c: ["ชาร์จมือถือ", "ลดเสียงรบกวน", "สแกนเพื่อเปิดลิงก์หรือข้อมูล", "ทำความสะอาดหน้าจอ"], a: 2 },
-    { q: "Google Drive ช่วยอะไรเรา", c: ["เก็บไฟล์ไว้บนอินเทอร์เน็ต เปิดได้จากหลายเครื่อง", "ทำให้ CPU เร็วขึ้น", "ทำให้จอสว่างขึ้น", "ซ่อมไฟล์เสียทุกชนิด"], a: 0 },
-    { q: "ก่อนโพสต์รูปหรือข้อความลงโซเชียลมีเดีย ควรทำอะไร", c: ["โพสต์ทุกอย่างทันที", "คิดก่อนว่าเหมาะสมและปลอดภัยหรือไม่", "ใส่ที่อยู่บ้านให้ชัดเจน", "ใส่เลขบัตรประชาชนไปด้วย"], a: 1 }
+    { q: "อุปกรณ์ใดใช้พิมพ์เอกสารออกมาเป็นกระดาษ", c: ["เครื่องพิมพ์", "เมาส์", "ลำโพง", "คีย์บอร์ด"], a: 0 },
+    { q: "จอภาพใช้ทำอะไร", c: ["ฟังเสียง", "แสดงภาพ", "พิมพ์งาน", "ชาร์จไฟ"], a: 1 },
+    { q: "Wi-Fi ใช้ทำอะไร", c: ["ชาร์จมือถือ", "พิมพ์เอกสาร", "เล่นอินเทอร์เน็ตโดยไม่ต้องเสียบสาย", "ทำให้เครื่องเย็น"], a: 2 },
+    { q: "แอปใดใช้ส่งข้อความหาเพื่อน", c: ["เครื่องคิดเลข", "นาฬิกา", "ไฟฉาย", "LINE"], a: 3 },
+    { q: "แอปใดใช้ดูวิดีโอ", c: ["Word", "YouTube", "เครื่องคิดเลข", "ปฏิทิน"], a: 1 },
+    { q: "ข้อใดคือเว็บที่ใช้ค้นหาข้อมูล", c: ["Google", "Word", "Excel", "Paint"], a: 0 },
+    { q: "รหัสผ่านแบบไหนปลอดภัยกว่า", c: ["1234", "password", "Hs#7kq!82", "ชื่อเล่นของเรา"], a: 2 },
+    { q: "เราควรบอกรหัสผ่านให้ใครรู้", c: ["เพื่อนสนิท", "ไม่บอกใครเลย", "คนที่ทักมาในแชต", "ทุกคนในห้อง"], a: 1 },
+    { q: "มีคนแปลกหน้าทักมาขอรหัส OTP ควรทำอย่างไร", c: ["ไม่ให้ และบอกผู้ปกครองหรือครู", "ส่งให้เลย", "ถามชื่อก่อนแล้วส่งให้", "ส่งให้ครึ่งเดียว"], a: 0 },
+    { q: "ก่อนกดลิงก์แปลก ๆ ควรทำอย่างไร", c: ["กดทันที", "ส่งต่อให้ทุกคน", "ตรวจสอบก่อนว่าปลอดภัยไหม", "กรอกข้อมูลส่วนตัวทั้งหมด"], a: 2 },
+    { q: "ระบบลงทะเบียนเรียนออนไลน์ ช่วยให้เราทำอะไร", c: ["ทำอาหาร", "ซ่อมจักรยาน", "ปลูกผัก", "เลือกวิชาเรียนผ่านเว็บได้"], a: 3 },
+    { q: "ที่เก็บข้อมูลจำนวนมากอย่างเป็นระเบียบ เรียกว่าอะไร", c: ["จอภาพ", "เมาส์", "ฐานข้อมูล", "ลำโพง"], a: 2 },
+    { q: "ไฟล์ที่ลงท้ายด้วย .mp3 คือไฟล์อะไร", c: ["เสียงเพลง", "รูปภาพ", "เอกสาร", "วิดีโอ"], a: 0 },
+    { q: "สัญลักษณ์ @ ใช้ในสิ่งใด", c: ["ชื่อเครื่องพิมพ์", "ที่อยู่อีเมล", "ราคาสินค้า", "รหัสไปรษณีย์"], a: 1 },
+    { q: "AI คืออะไร", c: ["เครื่องซักผ้า", "ชนิดของสายชาร์จ", "เกมมือถือ", "ปัญญาประดิษฐ์ ที่ช่วยคิดและตอบคำถามได้"], a: 3 },
+    { q: "สแกน QR Code ด้วยมือถือ เพื่อทำอะไร", c: ["ชาร์จแบต", "ล้างหน้าจอ", "เปิดเว็บไซต์หรือข้อมูลได้เร็ว", "เพิ่มเสียง"], a: 2 },
+    { q: "ไฟล์งานสำคัญควรสำรองไว้ที่ไหนเพิ่มอีกที่", c: ["ไม่ต้องสำรอง", "Google Drive หรือแฟลชไดรฟ์", "ลบไฟล์เดิมทิ้ง", "ส่งให้คนแปลกหน้า"], a: 1 },
+    { q: "ก่อนโพสต์ลงโซเชียล ควรทำอย่างไร", c: ["โพสต์เลยทันที", "ใส่เลขบัตรประชาชน", "ใส่ที่อยู่บ้านให้ชัด", "คิดก่อนว่าปลอดภัยและเหมาะสมไหม"], a: 3 },
+    { q: "กด Ctrl + C คือสั่งอะไร", c: ["คัดลอก", "วาง", "ลบ", "บันทึก"], a: 0 },
+    { q: "โปรแกรมใดเหมาะกับการพิมพ์รายงาน", c: ["YouTube", "LINE", "Microsoft Word", "เกมมือถือ"], a: 2 }
   ];
   var LETTERS = ["ก", "ข", "ค", "ง"];
 
@@ -251,6 +231,7 @@
   }
 
   function render() {
+    document.body.classList.toggle("compact", current !== null);
     if (current === null) renderBoard(); else renderQuestion();
     window.scrollTo({ top: 0 });
   }
